@@ -1,0 +1,54 @@
+{
+  "private": false,
+  "author": "Matthew Oaxaca",
+  "license": "MIT",
+  "version": "2.0.0",
+  "name": "async-redis",
+  "keywords": [
+    "redis",
+    "async",
+    "promise",
+    "es6"
+  ],
+  "description": "Light wrapper over redis_node with first class async & promise support.",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/moaxaca/async-redis.git"
+  },
+  "bugs": {
+    "url": "https://github.com/moaxaca/async-redis/issues"
+  },
+  "main": "src/index.js",
+  "typings": "src/index.d.ts",
+  "engines": {
+    "node": ">=7.6.0"
+  },
+  "directories": {
+    "example": "examples",
+    "test": "test"
+  },
+  "scripts": {
+    "coveralls": "nyc yarn test && nyc report --reporter=text-lcov | coveralls",
+    "lint": "eslint --fix --ext .js, .",
+    "test": "mocha test/**/*.spec.js --config test/setup.js --exit",
+    "test:integration": "mocha test/integration/*.spec.js --config test/setup.js --exit",
+    "test:unit": "mocha test/unit/*.spec.js --config test/setup.js --exit",
+    "version:patch": "npm version patch",
+    "version:minor": "npm version minor",
+    "version:major": "npm version major"
+  },
+  "dependencies": {
+    "redis": "3.1.2"
+  },
+  "devDependencies": {
+    "@types/node": "^15.6.1",
+    "@types/redis": "^2.8.28",
+    "chai": "^4.3.4",
+    "chai-as-promised": "^7.1.1",
+    "coveralls": "^3.1.0",
+    "dotenv": "^10.0.0",
+    "eslint": "^7.27.0",
+    "mocha": "^8.4.0",
+    "nyc": "^15.1.0"
+  }
+}
