@@ -51,11 +51,14 @@ module.exports = {
   removePermit: async (req, res, next) => {
     const role = await DB.findById(req.body.roleId);
     if (role) {
-      await DB.findByIdAndUpdate(role._id, {
-        $pull: { permit: req.body.permitId },
-      });
-      const newRole = await DB.find().populate("permit", "-__v");
-      helper.fMsg(res, 201, "permit remove complete Complete", newRole);
+      const finder = await role.permit.find((i) => i.equals(req.body.permitId));
+      if (finder) {
+        await DB.findByIdAndUpdate(role._id, {
+          $pull: { permit: req.body.permitId },
+        });
+        const newRole = await DB.find().populate("permit", "-__v");
+        helper.fMsg(res, 201, "permit remove complete Complete", newRole);
+      } else next(new Error("no permit with that permitId"));
     } else next(new Error("no role with that roleId"));
   },
 };

@@ -19,7 +19,7 @@ module.exports = {
   verify: (payload) =>
     jwt.verify(payload, process.env.KEY, (err, data) => {
       if (err) {
-        console.log(err);
+        throw Error(err.message);
       }
       return data;
     }),

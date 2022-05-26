@@ -62,21 +62,27 @@ module.exports = {
   removeRole: async (req, res, next) => {
     const userId = await DB.findById(req.body.userId);
     if (userId) {
-      await DB.findByIdAndUpdate(userId._id, {
-        $pull: { role: req.body.roleId },
-      });
-      const user = await DB.find().populate("role permit", "-__v");
-      helper.fMsg(res, 200, "remove role complete", user);
+      const finder = userId.role.find((i) => i.equals(req.body.roleId));
+      if (finder) {
+        await DB.findByIdAndUpdate(userId._id, {
+          $pull: { role: req.body.roleId },
+        });
+        const user = await DB.find().populate("role permit", "-__v");
+        helper.fMsg(res, 200, "remove role complete", user);
+      } else next(new Error("no role with that RoleId"));
     } else next(new Error("no user with that user Id"));
   },
   removePermit: async (req, res, next) => {
     const userId = await DB.findById(req.body.userId);
     if (userId) {
-      await DB.findByIdAndUpdate(userId._id, {
-        $pull: { permit: req.body.permitId },
-      });
-      const user = await DB.find().populate("role permit", "-__v");
-      helper.fMsg(res, 200, "remove permit complete", user);
+      const finder = userId.permit.find((i) => i.equals(req.body.permitId));
+      if (finder) {
+        await DB.findByIdAndUpdate(userId._id, {
+          $pull: { permit: req.body.permitId },
+        });
+        const user = await DB.find().populate("role permit", "-__v");
+        helper.fMsg(res, 200, "remove permit complete", user);
+      } else next(new Error("no permit with that permitId"));
     } else next(new Error("no user with that user Id"));
   },
 };
