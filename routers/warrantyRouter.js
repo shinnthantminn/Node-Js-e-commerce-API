@@ -1,24 +1,27 @@
 const router = require("express").Router();
-const controller = require("../controllers/permitController");
+const controller = require("../controllers/warrantyController");
+const DB = require("../models/warrantyModel");
 const {
-  validBody,
-  validUnique,
-  validParams,
   validToken,
   validRole,
-  validPermit,
+  validUnique,
+  validBody,
+  validParams,
 } = require("../middleware/validator");
+const { image } = require("../middleware/ImageTransfer");
 const { joiBody, joiParams } = require("../middleware/joiShema");
-const DB = require("../models/permitModel");
 
-router.route("/").get(controller.all).post(
-  validToken(),
-  // validRole("Admin"),
-  validPermit("can add post"),
-  validBody(joiBody.permit.body),
-  validUnique(DB, "name"),
-  controller.add
-);
+router
+  .route("/")
+  .get(controller.all)
+  .post(
+    validToken(),
+    validRole("Admin"),
+    validUnique(DB, "name"),
+    image("warranty"),
+    validBody(joiBody.warranty.body),
+    controller.add
+  );
 
 router
   .route("/:id")
@@ -27,14 +30,14 @@ router
     validToken(),
     validRole("Admin"),
     validParams(joiParams.id, "id"),
-    validBody(joiBody.permit.patch),
     validUnique(DB, "name"),
+    image("warranty"),
+    validBody(joiBody.warranty.patch),
     controller.edit
   )
   .delete(
     validToken(),
-    // validRole("Admin"),
-    validPermit("can delete post"),
+    validRole("Admin"),
     validParams(joiParams.id, "id"),
     controller.drop
   );

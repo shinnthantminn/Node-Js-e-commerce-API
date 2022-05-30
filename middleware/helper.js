@@ -26,4 +26,14 @@ module.exports = {
   set: (key, value) => redis.set(key.toString(), JSON.stringify(value)),
   get: (key) => redis.get(key.toString()),
   del: (key) => redis.del(key.toString()),
+  arrayChanger: (...item) => {
+    return (req, res, next) => {
+      item.map((i) => {
+        if (req.body[i]) {
+          req.body[i] = req.body[i].split(",");
+        }
+      });
+      next();
+    };
+  },
 };

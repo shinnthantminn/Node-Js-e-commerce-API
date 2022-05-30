@@ -5,7 +5,7 @@ module.exports = {
     return async (req, res, next) => {
       const result = await schema.validate(req.body);
       if (result.error) {
-        next(new Error(res.error.details[0].message));
+        next(new Error(result.error.details[0].message));
       } else next();
     };
   },
@@ -14,11 +14,11 @@ module.exports = {
       const num = [];
       for (const x of name) {
         const obj = {};
-        obj[name] = req.body[name];
+        obj[x] = req.body[x];
         const finder = await db.findOne(obj);
         num.push(x);
         if (finder) {
-          next(new Error(`this ${name} was existing in our server`));
+          next(new Error(`this ${x} was existing in our server`));
         } else if (num.length === name.length) {
           next();
         }
@@ -56,7 +56,16 @@ module.exports = {
       const finder = role.some((i) => item.includes(i));
       if (finder) {
         next();
-      } else next(new Error("you have no permit"));
+      } else next(new Error("you have no role to do that"));
+    };
+  },
+  validPermit: (...permit) => {
+    return async (req, res, next) => {
+      const item = req.user.permit.map((i) => i.name);
+      const finder = permit.some((i) => item.includes(i));
+      if (finder) {
+        next();
+      } else next(new Error("you have no permission to do that"));
     };
   },
 };

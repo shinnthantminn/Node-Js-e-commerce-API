@@ -1,24 +1,28 @@
 const router = require("express").Router();
-const controller = require("../controllers/permitController");
+const controller = require("../controllers/TagController");
+const DB = require("../models/TagModel");
 const {
+  validToken,
+  validRole,
   validBody,
   validUnique,
   validParams,
-  validToken,
-  validRole,
   validPermit,
 } = require("../middleware/validator");
 const { joiBody, joiParams } = require("../middleware/joiShema");
-const DB = require("../models/permitModel");
+const { image } = require("../middleware/ImageTransfer");
 
-router.route("/").get(controller.all).post(
-  validToken(),
-  // validRole("Admin"),
-  validPermit("can add post"),
-  validBody(joiBody.permit.body),
-  validUnique(DB, "name"),
-  controller.add
-);
+router
+  .route("/")
+  .get(controller.all)
+  .post(
+    validToken(),
+    validRole("Admin"),
+    validUnique(DB, "name"),
+    image("tags"),
+    validBody(joiBody.tag.body),
+    controller.add
+  );
 
 router
   .route("/:id")
@@ -27,14 +31,14 @@ router
     validToken(),
     validRole("Admin"),
     validParams(joiParams.id, "id"),
-    validBody(joiBody.permit.patch),
     validUnique(DB, "name"),
+    image("tags"),
+    validBody(joiBody.tag.patch),
     controller.edit
   )
   .delete(
     validToken(),
-    // validRole("Admin"),
-    validPermit("can delete post"),
+    validRole("Admin"),
     validParams(joiParams.id, "id"),
     controller.drop
   );
