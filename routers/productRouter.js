@@ -75,4 +75,6 @@ router.delete("/remove/warranty", [
 
 router.get("/paginate/:page", controller.paginate);
 
+router.get("/paginate/:page/:id/", controller.filterBy);
+
 module.exports = router;

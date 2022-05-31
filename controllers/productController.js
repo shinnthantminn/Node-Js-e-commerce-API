@@ -181,4 +181,38 @@ module.exports = {
       helper.fMsg(res, 200, `page ${page}`, product);
     } else next(new Error("page was no found"));
   },
+  filterBy: async (req, res, next) => {
+    console.log(req.params.page);
+    if (req.params.page > 0) {
+      const page = +req.params.page;
+      const limit = +process.env.POINT;
+      const reqPage = page === 1 ? 0 : page - 1;
+      const skipCount = limit * reqPage;
+      const finder = {};
+      finder[req.query.filter] = req.params.id;
+      const result = await DB.find(finder)
+        .skip(skipCount)
+        .limit(limit)
+        .populate({
+          path: "category",
+          populate: {
+            path: "subCategory",
+            model: "subCategory",
+            populate: {
+              path: "childCategory",
+              model: "childCategory",
+            },
+          },
+        })
+        .populate({
+          path: "subCategory",
+          populate: {
+            path: "childCategory",
+            model: "childCategory",
+          },
+        })
+        .populate("childCategory tag delivery warranty");
+      helper.fMsg(res, 200, `filter by ${req.query.filter}`, result);
+    } else next(new Error("no page found with minus and 0 value"));
+  },
 };

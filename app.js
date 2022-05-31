@@ -19,6 +19,7 @@ const tagRouter = require("./routers/tagsRouter");
 const deliveryRouter = require("./routers/DeliveryRouter");
 const warrantyRouter = require("./routers/warrantyRouter");
 const productRouter = require("./routers/productRouter");
+const orderRouter = require("./routers/orderRouter");
 
 app.use("/permit", permitRouter);
 app.use("/role", roleRouter);
@@ -30,6 +31,7 @@ app.use("/tag", tagRouter);
 app.use("/delivery", deliveryRouter);
 app.use("/warranty", warrantyRouter);
 app.use("/product", productRouter);
+app.use("/order", orderRouter);
 
 const migration = require("./Migration/migrator");
 

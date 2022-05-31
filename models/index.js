@@ -7,4 +7,7 @@ module.exports = {
   childCategoryDB: require("./childCategoryModel"),
   deliveryDB: require("./DeliverModels"),
   warrantyDB: require("./warrantyModel"),
+  orderDB: require("./OrderModel"),
+  orderItemDB: require("./OrderItemModel"),
+  productDB: require("./ProductModel"),
 };
