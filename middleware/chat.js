@@ -7,6 +7,16 @@ const isOnline = async (socketId, user) => {
   helper.set(user._id, user);
 };
 
+const unReadMessage = async (socket) => {
+  const item = await unreadDB.find({ to: socket.userId });
+  if (item.length > 0) {
+    item.forEach(async (i) => {
+      await unreadDB.findByIdAndDelete(i._id);
+    });
+  }
+  socket.emit("unreads", { msg: item.length });
+};
+
 const upMessage = async (io, socket, data) => {
   const message = await new messageDB(data).save();
   const messageGet = await messageDB
@@ -29,6 +39,22 @@ const upMessage = async (io, socket, data) => {
   socket.emit("send", messageGet);
 };
 
+const loadMore = async (socket, obj) => {
+  const limit = +process.env.MSG_LIMIT;
+  const page = obj.page === 1 ? 0 : obj.page - 1;
+  const skipCount = page * limit;
+  console.log(page);
+  const data = await messageDB
+    .find({
+      $or: [{ form: socket.userId }, { to: socket.userId }],
+    })
+    .sort({ created: -1 })
+    .skip(skipCount)
+    .limit(limit)
+    .populate("from to", "name _id");
+  socket.emit("loadMore", data);
+};
+
 module.exports = {
   initialize: async (io, socket) => {
     socket.userId = socket.user._id;
@@ -36,5 +62,7 @@ module.exports = {
     socket.on("send", (data) => {
       upMessage(io, socket, data);
     });
+    await unReadMessage(socket);
+    socket.on("load-more", (obj) => loadMore(socket, obj));
   },
 };
