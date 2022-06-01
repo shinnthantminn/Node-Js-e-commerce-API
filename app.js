@@ -2,6 +2,9 @@ require("dotenv").config();
 const express = require("express"),
   app = express(),
   mongoose = require("mongoose"),
+  server = require("http").createServer(app),
+  io = require("socket.io")(server),
+  helper = require("./middleware/helper"),
   fileUpload = require("express-fileupload");
 
 app.use(express.json());
@@ -44,6 +47,36 @@ app.get("*", (req, res, next) => {
   res.status(400).send("get method error");
 });
 
+/*normal*/
+// io.on("connection", (socket) => {
+//   socket.on("test", (data) => {
+//     console.log("data", data);
+//     socket.emit(
+//       "success",
+//       "hello i am bot from this chat can you tell me what u went"
+//     );
+//   });
+// });
+
+/*name spacing */
+io.of("/chat")
+  .use(async (socket, next) => {
+    const token = await socket.handshake.query.token;
+    if (token) {
+      try {
+        const data = await helper.verify(token);
+        const user = await helper.get(data._id);
+        socket.user = JSON.parse(user);
+        next();
+      } catch (e) {
+        next(new Error(e.message));
+      }
+    } else next(new Error("user login required"));
+  })
+  .on("connection", (socket) => {
+    require("./middleware/chat").initialize(io, socket);
+  });
+
 app.use((err, req, res, next) => {
   err.status = err.status || 200;
   res.status(err.status).json({
@@ -52,6 +85,12 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.listen(process.env.PORT, () => {
+server.listen(process.env.PORT, () => {
   console.log(`server running from http:127.0.0.1:${process.env.PORT}`);
 });
+
+//socket.io
+/*သူများကို ပို့မယ်ဆိုရင် Emit သူများပို့တာနားထောင်မယ်ဆိုရင် on
+ * emit မှာ event တစ်ခုနဲ့ Data တွေပါပါတယ်
+ * on မှာလည်း ထိုနည်းတူတူပါပဲ
+ * */

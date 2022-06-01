@@ -10,4 +10,6 @@ module.exports = {
   orderDB: require("./OrderModel"),
   orderItemDB: require("./OrderItemModel"),
   productDB: require("./ProductModel"),
+  messageDB: require("./messageModel"),
+  unreadDB: require("./unreadModel"),
 };
