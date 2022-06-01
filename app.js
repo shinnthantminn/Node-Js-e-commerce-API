@@ -43,25 +43,9 @@ const migration = require("./Migration/migrator");
   // migration.backupData();
 })();
 
-app.get("*", (req, res, next) => {
-  res.status(400).send("get method error");
-});
-
-/*normal*/
-// io.on("connection", (socket) => {
-//   socket.on("test", (data) => {
-//     console.log("data", data);
-//     socket.emit(
-//       "success",
-//       "hello i am bot from this chat can you tell me what u went"
-//     );
-//   });
-// });
-
-/*name spacing */
 io.of("/chat")
   .use(async (socket, next) => {
-    const token = await socket.handshake.query.token;
+    const token = socket.handshake.query.token;
     if (token) {
       try {
         const data = await helper.verify(token);
@@ -71,11 +55,17 @@ io.of("/chat")
       } catch (e) {
         next(new Error(e.message));
       }
-    } else next(new Error("user login required"));
+    } else {
+      next(new Error("you have no tokenization"));
+    }
   })
   .on("connection", (socket) => {
     require("./middleware/chat").initialize(io, socket);
   });
+
+app.get("*", (req, res, next) => {
+  res.status(400).send("get method error");
+});
 
 app.use((err, req, res, next) => {
   err.status = err.status || 200;
@@ -88,9 +78,3 @@ app.use((err, req, res, next) => {
 server.listen(process.env.PORT, () => {
   console.log(`server running from http:127.0.0.1:${process.env.PORT}`);
 });
-
-//socket.io
-/*သူများကို ပို့မယ်ဆိုရင် Emit သူများပို့တာနားထောင်မယ်ဆိုရင် on
- * emit မှာ event တစ်ခုနဲ့ Data တွေပါပါတယ်
- * on မှာလည်း ထိုနည်းတူတူပါပဲ
- * */
