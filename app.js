@@ -1,9 +1,9 @@
 require("dotenv").config();
 const express = require("express"),
   app = express(),
-  mongoose = require("mongoose"),
   server = require("http").createServer(app),
   io = require("socket.io")(server),
+  mongoose = require("mongoose"),
   helper = require("./middleware/helper"),
   fileUpload = require("express-fileupload");
 
@@ -39,9 +39,13 @@ app.use("/order", orderRouter);
 const migration = require("./Migration/migrator");
 
 (async () => {
-  // migration.migrator();
+  migration.migrator();
   // migration.backupData();
 })();
+
+app.get("*", (req, res, next) => {
+  res.status(400).send("get method error");
+});
 
 io.of("/chat")
   .use(async (socket, next) => {
@@ -55,17 +59,11 @@ io.of("/chat")
       } catch (e) {
         next(new Error(e.message));
       }
-    } else {
-      next(new Error("you have no tokenization"));
-    }
+    } else next(new Error("tokenization Error"));
   })
   .on("connection", (socket) => {
-    require("./middleware/chat").initialize(io, socket);
+    require("./Chatting/Chat").initialize(io, socket);
   });
-
-app.get("*", (req, res, next) => {
-  res.status(400).send("get method error");
-});
 
 app.use((err, req, res, next) => {
   err.status = err.status || 200;
